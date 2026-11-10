@@ -129,14 +129,18 @@
     $('cmp-note').textContent = `Same 24 h workload, ambient and hidden faults for every policy (cooling derate ${hm(prep.cfg.hvac.start)} to ${hm(prep.cfg.hvac.end)}, inlet +${prep.cfg.hvac.delta} \u00b0C; ${prep.cfg.degrade.sensor} cooling path degrades from ${hm(prep.cfg.degrade.start)}; neither is in the training data). The flat margin is the ${pct(1 - alpha, 0)} quantile of all of yesterday's forecast errors, applied everywhere.`;
     $('cal').innerHTML = `<thead><tr><th>Predicted distance to limit</th><th class="num">Calibration scores</th><th class="num">Starting bound</th><th class="num">Decisions today</th><th class="num">Observed miss rate</th><th class="num">Target</th></tr></thead><tbody>` +
       guard.coverage.map(c => `<tr><td>${c.band}</td><td class="num">${c.calibN.toLocaleString()}</td><td class="num">+${f1(c.qhatStart)} \u00b0C</td><td class="num">${c.n.toLocaleString()}</td><td class="num">${statusIcon(c.missRate <= alpha * 1.25 ? 'success' : 'warning')}${pct(c.missRate, 2)}</td><td class="num">${pct(alpha, 0)}</td></tr>`).join('') + '</tbody>';
-    const iv = guard.interventions.slice().sort((p, q) => (q.boundAgentC - q.limit) - (p.boundAgentC - p.limit) || p.t - q.t);
+    const ex = (d) => isFinite(d.boundAgentC) ? d.boundAgentC - d.limit : -1e9; // finite, most severe first; then budget-exhausted vetoes
+    const iv = guard.interventions.slice().sort((p, q) => (ex(q) - ex(p)) || p.t - q.t);
     $('iv-count').textContent = `${guard.interventions.length.toLocaleString()} items`;
     $('pg-last').textContent = String(Math.ceil(guard.interventions.length / 10));
     $('iv').innerHTML = `<thead><tr><th><span class="sort">&#9662;</span>ID</th><th><span class="sort">&#9662;</span>Severity</th><th><span class="sort">&#9662;</span>Date</th><th>Sensor</th><th>Description</th></tr></thead><tbody>` +
       iv.slice(0, 10).map((d) => {
         const id = guard.interventions.indexOf(d) + 1;
-        const sev = d.boundAgentC > d.limit + 2 ? ['danger', 'Critical'] : d.boundAgentC > d.limit + 0.5 ? ['warning', 'Warning'] : ['info', 'OK'];
-        return `<tr><td>${id}</td><td>${statusIcon(sev[0])}${sev[1]}</td><td class="mono">${DAY}<br>${hms(d.t)} UTC</td><td>${d.sensor}</td><td>Agent asked for ${Math.round(100 * d.qAgent)}% fan; guardrail held ${Math.round(100 * d.qGuard)}%. 30 s bound at ${Math.round(100 * d.qAgent)}%: ${f1(d.boundAgentC)} \u00b0C on ${d.sensor} (upper critical ${d.limit} \u00b0C).</td></tr>`;
+        const fin = isFinite(d.boundAgentC);
+        const sev = !fin ? ['warning', 'Warning'] : d.boundAgentC > d.limit + 2 ? ['danger', 'Critical'] : d.boundAgentC > d.limit + 0.5 ? ['warning', 'Warning'] : ['info', 'OK'];
+        const why = fin ? `30 s bound at ${Math.round(100 * d.qAgent)}%: ${f1(d.boundAgentC)} \u00b0C on ${d.sensor} (upper critical ${d.limit} \u00b0C).`
+          : `The "${TG.BANDS[d.band].name}" band had just missed more often than its ${pct(res.alpha, 0)} budget, so no cut was allowed until it recalibrated.`;
+        return `<tr><td>${id}</td><td>${statusIcon(sev[0])}${sev[1]}</td><td class="mono">${DAY}<br>${hms(d.t)} UTC</td><td>${d.sensor}</td><td>Agent asked for ${Math.round(100 * d.qAgent)}% fan; guardrail held ${Math.round(100 * d.qGuard)}%. ${why}</td></tr>`;
       }).join('') + '</tbody>';
   }
 
@@ -149,8 +153,8 @@
   $('win').addEventListener('change', renderChart);
   $('hdr-refresh').addEventListener('click', go);
   $('iv-export').addEventListener('click', () => {
-    const lines = ['id,time,sensor,agent_fan_pct,guard_fan_pct,bound_at_agent_C,limit_C'];
-    res.guard.interventions.forEach((d, i) => lines.push([i + 1, DAY + 'T' + hms(d.t) + 'Z', d.sensor, Math.round(100 * d.qAgent), Math.round(100 * d.qGuard), d.boundAgentC.toFixed(2), d.limit].join(',')));
+    const lines = ['id,time,sensor,agent_fan_pct,guard_fan_pct,bound_at_agent_C,limit_C,band'];
+    res.guard.interventions.forEach((d, i) => lines.push([i + 1, DAY + 'T' + hms(d.t) + 'Z', d.sensor, Math.round(100 * d.qAgent), Math.round(100 * d.qGuard), isFinite(d.boundAgentC) ? d.boundAgentC.toFixed(2) : 'unbounded', d.limit, TG.BANDS[d.band].name].join(',')));
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' })); a.download = 'thermal_guardrail_interventions.csv'; a.click();
   });
   go();

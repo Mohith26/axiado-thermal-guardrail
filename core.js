@@ -390,7 +390,7 @@
             if (qGuard > qAgent + 1e-9) {
               qNew = qGuard;
               const mG = mhatFor(t, qGuard);
-              interventions.push({ t, regime, qAgent, qGuard, sensor: S[hot].id, limit: S[hot].limit, predAgentC: hotPred, boundAgentC: hotPred + qhat, mhatAgent: mA, boundAgent: mA + qhat, mhatGuard: mG, boundGuard: mG + qh[bandOf(mG)], qhat });
+              interventions.push({ t, regime, band: bandOf(mA), qAgent, qGuard, sensor: S[hot].id, limit: S[hot].limit, predAgentC: hotPred, boundAgentC: hotPred + qhat, mhatAgent: mA, boundAgent: mA + qhat, mhatGuard: mG, boundGuard: mG + qh[bandOf(mG)], qhat });
             }
             d_qh = qh;
           }
