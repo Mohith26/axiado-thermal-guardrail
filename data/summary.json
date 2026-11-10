@@ -1,0 +1,224 @@
+{
+  "seed": 20261110,
+  "generated": "node scripts/generate.js",
+  "fit": {
+    "gpu": 1.7785346821787098,
+    "cpu": 0.6234063956311613
+  },
+  "nTrain": 54260,
+  "alphas": {
+    "0.01": {
+      "stock": {
+        "fanKWh": 2.901,
+        "savingsPct": 0,
+        "crossingEvents": 0,
+        "throttleGpuS": 0,
+        "peakGpuC": 83.4,
+        "interventions": 0
+      },
+      "agent": {
+        "fanKWh": 1.78,
+        "savingsPct": 38.6,
+        "crossingEvents": 26,
+        "throttleGpuS": 45,
+        "peakGpuC": 89.4,
+        "interventions": 0
+      },
+      "flat": {
+        "fanKWh": 3.116,
+        "savingsPct": -7.4,
+        "crossingEvents": 0,
+        "throttleGpuS": 0,
+        "peakGpuC": 83.2,
+        "interventions": 0
+      },
+      "guard": {
+        "fanKWh": 2.193,
+        "savingsPct": 24.4,
+        "crossingEvents": 6,
+        "throttleGpuS": 6,
+        "peakGpuC": 87.8,
+        "interventions": 1499
+      },
+      "flatMargin": 9.34,
+      "guardMiss": 0.0116,
+      "driftAlarms": [
+        {
+          "sensor": "GPU5",
+          "hour": 15.2
+        }
+      ]
+    },
+    "0.02": {
+      "stock": {
+        "fanKWh": 2.901,
+        "savingsPct": 0,
+        "crossingEvents": 0,
+        "throttleGpuS": 0,
+        "peakGpuC": 83.4,
+        "interventions": 0
+      },
+      "agent": {
+        "fanKWh": 1.78,
+        "savingsPct": 38.6,
+        "crossingEvents": 26,
+        "throttleGpuS": 45,
+        "peakGpuC": 89.4,
+        "interventions": 0
+      },
+      "flat": {
+        "fanKWh": 2.186,
+        "savingsPct": 24.6,
+        "crossingEvents": 0,
+        "throttleGpuS": 0,
+        "peakGpuC": 86.8,
+        "interventions": 0
+      },
+      "guard": {
+        "fanKWh": 1.962,
+        "savingsPct": 32.4,
+        "crossingEvents": 0,
+        "throttleGpuS": 0,
+        "peakGpuC": 86.6,
+        "interventions": 741
+      },
+      "flatMargin": 5.32,
+      "guardMiss": 0.0217,
+      "driftAlarms": [
+        {
+          "sensor": "GPU5",
+          "hour": 15.18
+        }
+      ]
+    },
+    "0.05": {
+      "stock": {
+        "fanKWh": 2.901,
+        "savingsPct": 0,
+        "crossingEvents": 0,
+        "throttleGpuS": 0,
+        "peakGpuC": 83.4,
+        "interventions": 0
+      },
+      "agent": {
+        "fanKWh": 1.78,
+        "savingsPct": 38.6,
+        "crossingEvents": 26,
+        "throttleGpuS": 45,
+        "peakGpuC": 89.4,
+        "interventions": 0
+      },
+      "flat": {
+        "fanKWh": 1.844,
+        "savingsPct": 36.4,
+        "crossingEvents": 19,
+        "throttleGpuS": 30,
+        "peakGpuC": 88.6,
+        "interventions": 0
+      },
+      "guard": {
+        "fanKWh": 1.874,
+        "savingsPct": 35.4,
+        "crossingEvents": 3,
+        "throttleGpuS": 3,
+        "peakGpuC": 87,
+        "interventions": 725
+      },
+      "flatMargin": 2.67,
+      "guardMiss": 0.0526,
+      "driftAlarms": [
+        {
+          "sensor": "GPU5",
+          "hour": 15.14
+        }
+      ]
+    }
+  },
+  "robustness": [
+    {
+      "seed": 20261110,
+      "agent": {
+        "save": 38.6,
+        "events": 26
+      },
+      "flat": {
+        "save": 24.6,
+        "events": 0
+      },
+      "guard": {
+        "save": 32.4,
+        "events": 0,
+        "miss": 0.0217
+      },
+      "firstAlarm": "GPU5@15.18h"
+    },
+    {
+      "seed": 101,
+      "agent": {
+        "save": 46.7,
+        "events": 18
+      },
+      "flat": {
+        "save": 30.4,
+        "events": 0
+      },
+      "guard": {
+        "save": 40.4,
+        "events": 4,
+        "miss": 0.0219
+      },
+      "firstAlarm": "GPU7@5.15h"
+    },
+    {
+      "seed": 202,
+      "agent": {
+        "save": 56.8,
+        "events": 52
+      },
+      "flat": {
+        "save": 37.9,
+        "events": 0
+      },
+      "guard": {
+        "save": 47.6,
+        "events": 8,
+        "miss": 0.021
+      },
+      "firstAlarm": "GPU5@15.82h"
+    },
+    {
+      "seed": 303,
+      "agent": {
+        "save": 41.4,
+        "events": 292
+      },
+      "flat": {
+        "save": 17.6,
+        "events": 28
+      },
+      "guard": {
+        "save": 22.9,
+        "events": 19,
+        "miss": 0.0209
+      },
+      "firstAlarm": "GPU5@16.45h"
+    },
+    {
+      "seed": 404,
+      "agent": {
+        "save": 55.7,
+        "events": 164
+      },
+      "flat": {
+        "save": 35.9,
+        "events": 20
+      },
+      "guard": {
+        "save": 33.5,
+        "events": 12,
+        "miss": 0.0222
+      },
+      "firstAlarm": "GPU5@15.24h"
+    }
+  ]
+}

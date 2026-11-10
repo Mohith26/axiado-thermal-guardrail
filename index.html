@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thermal management - PIC3005-MT</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* IBM Plex Sans as in the webui-vue reference screenshots (src/env/assets/fonts/IBM_Plex_Sans). Tokens from openbmc/webui-vue: src/assets/styles/bmc/helpers/_colors.scss, _variables.scss, custom/*.scss (Bootstrap 5.3, $enable-rounded: false) */
+:root{
+  --blue:#2d60e5;--green:#0a7d06;--red:#da1416;--yellow:#efc100;
+  --g100:#f4f4f4;--g200:#e6e6e6;--g300:#d8d8d8;--g400:#cccccc;--g500:#b3b3b3;--g600:#999999;--g700:#666666;--g800:#3f3f3f;--g900:#161616;
+  --header:48px;--nav:300px;
+  --font:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:var(--font);font-size:1rem;line-height:1.5;color:#212529;background:#fff;-webkit-font-smoothing:antialiased}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+svg.ic{fill:currentColor;width:1rem;height:1rem;vertical-align:text-bottom}
+/* ---------- app header */
+#page-header{position:fixed;top:0;left:0;right:0;height:var(--header);background:var(--g900);z-index:1030;display:flex;align-items:center}
+.navbar-brand{display:flex;align-items:center;height:var(--header);padding:.5rem;margin-left:1rem}
+.navbar-brand img{height:32px;display:block}
+.nav-tags{color:#b9b9b9;font-size:1rem;padding-left:.5rem;white-space:nowrap}
+.nav-tags span{padding-left:1rem}.nav-tags span:first-child{padding-left:0}
+.helper-menu{margin-left:auto;display:flex;align-items:center;padding:0 1rem;height:100%}
+.helper-menu a,.helper-menu button{color:#fff;fill:currentColor;background:none;border:0;font:inherit;padding:.68rem 1rem;display:inline-flex;align-items:center;gap:.25rem;cursor:pointer;height:var(--header)}
+.helper-menu a:hover,.helper-menu button:hover{background:#2c2c2c;text-decoration:none}
+.helper-menu svg.ic{width:1rem;height:1rem;margin-right:.25rem}
+.status-ic{width:1rem;height:1rem;display:inline-block;vertical-align:text-bottom;margin-right:.25rem}
+.caret{border-top:.3em solid;border-right:.3em solid transparent;border-left:.3em solid transparent;display:inline-block;margin-left:.255em;vertical-align:.255em}
+/* ---------- primary navigation */
+.nav-container{position:fixed;top:var(--header);bottom:0;left:0;width:var(--nav);background:var(--g100);border-right:1px solid #bcbcbc;overflow-y:auto;z-index:1020}
+.nav{list-style:none;margin:0;padding:1rem 0 1.5rem}
+.nav li{list-style:none}
+.nav .btn-link,.nav .nav-link{position:relative;display:block;width:100%;text-align:left;border:0;background:none;font:inherit;font-weight:400;color:var(--g800);padding:.5rem 1rem;cursor:pointer;line-height:1.5}
+.nav .btn-link:hover,.nav .nav-link:hover{background:#dedede;color:var(--g900);text-decoration:none}
+.nav .btn-link svg.ic{width:1.2rem;height:1.2rem;margin-right:1rem;vertical-align:text-bottom}
+.nav .icon-expand{float:right;margin:.25rem 0 0!important;width:1.2rem!important;height:1.2rem!important}
+.nav .collapsed .icon-expand{transform:rotate(180deg)}
+.nav-item__nav{padding:0;margin:0}
+.nav-item__nav .nav-link{padding-left:4rem}
+.nav-link--current,.nav-link--current:hover{background:var(--g800)!important;color:var(--g100)!important;font-weight:500!important;cursor:default}
+.nav-link--current::before{content:"";position:absolute;top:0;bottom:0;left:0;width:4px;background:var(--blue)}
+/* ---------- page */
+main{margin-left:var(--nav);padding-top:var(--header)}
+.container-xl{max-width:1140px;padding:0 12px 0 12px;margin:0 auto 0 0}
+.page{padding:1.5rem 1.5rem 3rem 2rem}
+h1{font-size:2.625rem;font-weight:300;line-height:1.238;margin:0 0 .5rem}
+.page-title{margin-bottom:2rem}
+.page-title p{max-width:72ch;margin:0;color:#212529}
+.page-section{margin-bottom:3rem}
+.page-section>h2{font-size:1.75rem;font-weight:400;line-height:1.2857;margin:0 0 1rem}
+h3.h5{font-size:1rem;font-weight:500;line-height:1.375;margin:0}
+dt,label{color:var(--g800);font-size:14px;font-weight:400;line-height:1.4285}
+dd{margin:0 0 .5rem;font-size:1rem}
+.row{display:flex;flex-wrap:wrap;margin:0 -12px}
+.col{flex:1 0 0;padding:0 12px;min-width:0}
+/* overview-card: b-card bg-variant=light border-variant=light */
+.card{background:var(--g100);border:1px solid var(--g100);padding:20px;min-width:220px;height:100%}
+.card .head{display:flex;justify-content:space-between;align-items:center}
+.card .head a{font-size:14px;white-space:nowrap;margin-left:.5rem}
+.card dl{margin:1rem 0 0}
+.card dd.big{font-size:1.75rem;font-weight:400;line-height:1.2;margin-bottom:.25rem}
+.card dd.sub{font-size:14px;color:var(--g800)}
+/* forms */
+.form-row{display:flex;gap:24px;align-items:flex-end;flex-wrap:wrap;margin-bottom:1rem}
+.form-group label{display:block;margin-bottom:.5rem}
+.form-select{appearance:none;-webkit-appearance:none;font:inherit;font-size:1rem;color:#212529;background:#fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") no-repeat right .75rem center/16px 12px;border:1px solid var(--g500);border-radius:0;padding:.375rem 2.25rem .375rem .75rem;min-width:220px;height:38px}
+.form-select:focus{outline:0;box-shadow:inset 0 0 0 2px var(--blue)}
+.form-text{font-size:.875em;color:var(--g700);margin-top:.25rem}
+.btn{display:inline-flex;align-items:center;font:inherit;font-size:1rem;border:1px solid transparent;border-radius:0;padding:.5rem 1rem;cursor:pointer;line-height:1.5}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-primary:hover{background:#2652c3}
+.btn-link{background:none;color:var(--blue);font-weight:500;padding:.25rem .5rem}
+.btn-link:hover{background:var(--g200)}
+.btn svg.ic{margin-right:.25rem}
+/* alerts (custom/_alert.scss): left border + light tint */
+.alert{display:flex;gap:1rem;align-items:flex-start;border:0;border-left:5px solid;padding:1rem 1.25rem;margin-bottom:1.5rem}
+.alert-warning{border-color:var(--yellow);background:#fdf9e5}
+.alert-info{border-color:var(--blue);background:#eaeffc}
+.alert .status-ic{width:1.25rem;height:1.25rem;flex:0 0 auto;margin-top:.1rem}
+.alert p{margin:0}.alert strong{font-weight:600}
+/* tables (custom/_tables.scss) */
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;font-size:14px}
+table.table{width:100%;border-collapse:collapse;font-size:1rem}
+.table th{background:var(--g200);color:var(--g900);font-weight:500;text-align:left;padding:.75rem;border-top:1px solid var(--g300);border-bottom:1px solid var(--g300);vertical-align:middle;font-size:14px}
+.table td{padding:.75rem;border-top:1px solid var(--g300);border-bottom:1px solid var(--g300);vertical-align:middle;font-size:14px}
+.table th:first-child,.table td:first-child{border-left:1px solid var(--g300)}
+.table th:last-child,.table td:last-child{border-right:1px solid var(--g300)}
+.table td.num,.table th.num{text-align:right;font-variant-numeric:tabular-nums}
+.table tr.sel td{background:#eaeffc}
+.sort{display:inline-block;width:.6rem;margin-right:.35rem;color:var(--g700);font-size:10px;vertical-align:1px}
+.pager{display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;font-size:14px}
+.pager .pp{display:flex;align-items:center;gap:.75rem}
+.pager .box{border:1px solid var(--g500);padding:.3rem .6rem;min-width:64px;background:#fff}
+.pager .pg{display:flex;border:1px solid var(--g300)}
+.pager .pg span{padding:.3rem .7rem;color:var(--g700)}
+.pager .pg span.on{color:var(--blue);border-bottom:2px solid var(--blue);font-weight:500}
+/* chart */
+.chart{border:1px solid var(--g300);background:#fff;padding:12px 16px 8px}
+.legend{display:flex;gap:18px;font-size:14px;color:var(--g800);flex-wrap:wrap;margin:2px 0 6px}
+.legend i{display:inline-block;width:16px;height:2px;vertical-align:middle;margin-right:6px}
+.legend i.dash{background:repeating-linear-gradient(90deg,var(--red) 0 4px,transparent 4px 7px)}
+.legend i.dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
+.legend i.band{height:10px;background:rgba(45,96,229,.16)}
+svg text{font-family:var(--font)}
+.muted{color:var(--g700)}
+.foot{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--g300);font-size:12px;color:var(--g700)}
+.mono{font-variant-numeric:tabular-nums}
+.loading{position:fixed;top:var(--header);left:var(--nav);right:0;height:3px;background:linear-gradient(90deg,var(--blue) 40%,transparent 40%);background-size:200% 100%;animation:ld 1s linear infinite;z-index:2000}
+@keyframes ld{from{background-position:100% 0}to{background-position:-100% 0}}
+</style>
+</head>
+<body>
+<header id="page-header">
+  <a class="navbar-brand" href="#" aria-label="Built on OpenBMC"><img src="assets/built-on-openbmc-logo.svg" alt="Built on OpenBMC"></a>
+  <div class="nav-tags"><span>|</span><span>pic-rack14-u22</span><span>PIC3005-MT (AX3005 TCU)</span><span>AXD3005MT-0417</span></div>
+  <nav class="helper-menu">
+    <a href="#" id="hdr-health"><span class="status-ic" data-status="warning"></span>Health</a>
+    <a href="#"><span class="status-ic" data-status="success"></span>Power</a>
+    <button type="button" id="hdr-refresh"><svg class="ic" viewBox="0 0 32 32" data-icon="renew"></svg>Refresh</button>
+    <button type="button"><svg class="ic" viewBox="0 0 32 32" data-icon="user--avatar"></svg>root<span class="caret"></span></button>
+  </nav>
+</header>
+<div class="nav-container">
+  <nav aria-label="Primary navigation">
+    <ul class="nav">
+      <li><a class="nav-link btn-link" href="#"><svg class="ic" viewBox="0 0 32 32" data-icon="dashboard"></svg>Overview</a></li>
+      <li><button class="btn-link collapsed"><svg class="ic" viewBox="0 0 32 32" data-icon="text-link--analysis"></svg>Logs<svg class="ic icon-expand" viewBox="0 0 32 32" data-icon="chevron--up"></svg></button></li>
+      <li><button class="btn-link collapsed"><svg class="ic" viewBox="0 0 32 32" data-icon="data--check"></svg>Hardware status<svg class="ic icon-expand" viewBox="0 0 32 32" data-icon="chevron--up"></svg></button></li>
+      <li><button class="btn-link collapsed"><svg class="ic" viewBox="0 0 32 32" data-icon="settings--adjust"></svg>Operations<svg class="ic icon-expand" viewBox="0 0 32 32" data-icon="chevron--up"></svg></button></li>
+      <li><button class="btn-link collapsed"><svg class="ic" viewBox="0 0 32 32" data-icon="settings"></svg>Settings<svg class="ic icon-expand" viewBox="0 0 32 32" data-icon="chevron--up"></svg></button></li>
+      <li><button class="btn-link collapsed"><svg class="ic" viewBox="0 0 32 32" data-icon="security"></svg>Security and access<svg class="ic icon-expand" viewBox="0 0 32 32" data-icon="chevron--up"></svg></button></li>
+      <li><button class="btn-link"><svg class="ic" viewBox="0 0 32 32" data-icon="data--base--alt"></svg>Resource management<svg class="ic icon-expand" viewBox="0 0 32 32" data-icon="chevron--up"></svg></button>
+        <ul class="nav-item__nav">
+          <li><a class="nav-link" href="#">Power</a></li>
+          <li><a class="nav-link nav-link--current" href="#" aria-current="page">Thermal management</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</div>
+<div class="loading" id="loading"></div>
+<main id="main-content">
+ <div class="container-xl"><div class="page">
+  <div class="page-title">
+    <h1>Thermal management</h1>
+    <p>The DTM agent sets fan duty from its 30-second temperature forecast. Thermal guardrail checks every fan cut against a calibrated upper bound on that forecast and vetoes cuts that could push a sensor past its upper critical threshold.</p>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group"><label for="alpha">Allowed limit-crossing risk per decision</label>
+      <select class="form-select" id="alpha"><option value="0.01">1% (1 in 100)</option><option value="0.02" selected>2% (1 in 50)</option><option value="0.05">5% (1 in 20)</option></select></div>
+    <div class="form-group"><label for="win">Chart window</label>
+      <select class="form-select" id="win"></select></div>
+    <div class="form-group" style="padding-bottom:9px"><span class="form-text" id="replay-note"></span></div>
+  </div>
+
+  <div id="alert-slot"></div>
+
+  <div class="page-section">
+    <h2>Guardrail status</h2>
+    <div class="row" id="cards"></div>
+  </div>
+
+  <div class="page-section">
+    <h2>Hottest GPU and fan duty</h2>
+    <div class="chart">
+      <div class="legend" id="legend"></div>
+      <svg id="chart" width="100%" height="430" viewBox="0 0 1060 430" preserveAspectRatio="none" role="img" aria-label="Temperature and fan duty"></svg>
+    </div>
+  </div>
+
+  <div class="page-section">
+    <h2>Policy comparison (last 24 hours)</h2>
+    <table class="table" id="cmp"></table>
+    <p class="form-text" id="cmp-note"></p>
+  </div>
+
+  <div class="page-section">
+    <h2>Calibration</h2>
+    <p class="muted" style="max-width:80ch;margin-top:-.25rem;font-size:14px">Bounds are calibrated separately for each distance-to-limit band, from yesterday's forecast errors, and kept honest online: every miss tightens that band's bound (adaptive conformal inference over the most recent 2 hours of scores).</p>
+    <table class="table" id="cal"></table>
+  </div>
+
+  <div class="page-section">
+    <h2>Guardrail interventions</h2>
+    <div class="table-toolbar"><span id="iv-count"></span><button class="btn btn-link" type="button" id="iv-export"><svg class="ic" viewBox="0 0 32 32" data-icon="export"></svg>Export</button></div>
+    <table class="table" id="iv"></table>
+    <div class="pager"><div class="pp"><span class="box">10 &#8661;</span><span>Items per page</span></div><div class="pg"><span>&lsaquo;</span><span class="on">1</span><span id="pg-last"></span><span>&rsaquo;</span></div></div>
+  </div>
+
+  <div class="foot">Unofficial concept demo by Mohith Gajjela. Not affiliated with Axiado or the OpenBMC project. Synthetic data: seeded 8-GPU server simulation; the DTM agent shown is a stand-in predictive controller, not Axiado's model. Web UI shell rebuilt from openbmc/webui-vue (Apache-2.0).</div>
+ </div></div>
+</main>
+<script src="icons.js"></script>
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
